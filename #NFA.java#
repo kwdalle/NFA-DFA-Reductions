@@ -1,0 +1,44 @@
+import java.util.*;
+import java.io.*;
+
+class NFA {
+	public static void main(String[] args){
+		int numStates;
+		String[] inputs;
+		ArrayList<ArrayList<String>> transitions = new ArrayList<ArrayList<String>>();
+		int startState;
+		ArrayList<Integer> finalStates = new ArrayList<Integer>();
+		try{
+			Scanner file = new Scanner(new File(args[0]));;
+			String line = file.nextLine();
+			
+			numStates = Integer.parseInt(line);
+			line = file.nextLine();
+			inputs = line.split("\\s+");
+
+			for(int i = 0; i < numStates; i++){
+				//System.out.println(Arrays.toString(file.nextLine().replace("{","").replace("}","").split("\\s+")));
+				String[] firstParse = file.nextLine().replace("{","").replace("}","").split("\\s+");
+
+				for(int k = 1; k < firstParse.length; k++){
+					//System.out.println(Arrays.toString(firstParse));
+					//System.out.println(Arrays.toString(firstParse[k].split(",")));
+					String[] secondParse = firstParse[k].split(",");
+					transitions.add(new ArrayList<String>());
+					for(int l = 0; l < secondParse.length; l++){
+						//System.out.println(secondParse[l]);
+						transitions.get(i).add(secondParse[l]);
+					}
+				}
+			}
+			for (int i = 0; i < transitions.size(); i++){
+				System.out.println(i + ": " + Arrays.toString(transitions.get(i).toArray()));
+			}
+			startState = Integer.parseInt(file.nextLine());
+			System.out.println(startState);
+		} catch (Exception e) {
+			System.out.println("Not able to open the file.");
+		}
+		
+	}
+}
