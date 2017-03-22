@@ -73,9 +73,9 @@ class NFA {
 				if(!initState[i].equals("")){
 					DFAStates.get(0).add(Integer.parseInt(initState[i]));
 				}
-				//Makes sure to include the start state into the new DFA state
-				DFAStates.get(0).add(startState);
 			}
+			//Makes sure to include the start state into the new DFA state
+			DFAStates.get(0).add(startState);
 
 			//Creates a 3-D array that stores the different transitons for the different inputs.
 			ArrayList<ArrayList<ArrayList<Integer>>> DFATransitions = new ArrayList<ArrayList<ArrayList<Integer>>>();
@@ -134,6 +134,7 @@ class NFA {
 					Collections.sort(DFATransitions.get(i).get(k));
 					if(!DFAStates.contains(DFATransitions.get(i).get(k))){
 						//After creating the transitions you compare them to the states and only add them if they are not already apart of the states.
+						//System.out.println(DFAStates.get(i));
 						DFAStates.add(DFATransitions.get(i).get(k));
 						DFATransitions.add(new ArrayList<ArrayList<Integer>>());
 					}
