@@ -102,7 +102,7 @@ class NFA {
 									}
 								}
 							}
-						}else{ //Deals with the lambda transitions
+						}else{ //Deals with the lambda transitions in the NFA
 							//No matter what your input is you are able to go to the next state because it does not require anything if it is lambda
 							//thus it is added to the transition for this state on both inputs (May end up in different DFA states since the differe
 							//-nt inputs will create unique transitions lists even though they both contain lambda transitions).
@@ -203,6 +203,8 @@ class NFA {
 			for(String data: accepted){
 				System.out.println(data);
 			}
+
+			input.close();
 		} catch (Exception e) {
 			System.out.println("Errors have happened (either in filename or format of files)");
 		}
