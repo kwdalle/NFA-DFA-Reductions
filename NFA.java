@@ -102,22 +102,22 @@ class NFA {
 									}
 								}
 							}
-						}else{ //Deals with the lambda transitions in the NFA
+						}//else{ //Deals with the lambda transitions in the NFA
 							//No matter what your input is you are able to go to the next state because it does not require anything if it is lambda
 							//thus it is added to the transition for this state on both inputs (May end up in different DFA states since the differe
 							//-nt inputs will create unique transitions lists even though they both contain lambda transitions).
-							String[] temp = transitions.get(state).get(k).replace("{","").replace("}","").split(",");
-							for(int m = 0; m < transitions.get(state).size() -1; m++){
-								for(String s: temp){
-									if(!s.equals("")){
-										Integer curr = Integer.parseInt(s);
-										if(!DFATransitions.get(i).get(m).contains(curr)){
-											DFATransitions.get(i).get(m).add(curr);
-										}
-									}
-								}
-							}
-						}
+							//String[] temp = transitions.get(state).get(k).replace("{","").replace("}","").split(",");
+							//for(int m = 0; m < transitions.get(state).size() -1; m++){
+							//	for(String s: temp){
+							//		if(!s.equals("")){
+							//			Integer curr = Integer.parseInt(s);
+							//			if(!DFATransitions.get(i).get(m).contains(curr)){
+							//				DFATransitions.get(i).get(m).add(curr);
+							//			}
+							//		}
+							//	}
+							//}
+						//}
 					}
 				}	
 				//Deals with the turning of transitions to states
