@@ -206,7 +206,6 @@ class parse {
 			Scanner inputMin = new Scanner(new File(args[1]));
 
 			ArrayList<String> acceptedMin = new ArrayList<String>();
-		
 			while(inputMin.hasNextLine()){
 				String data = inputMin.nextLine();
 				char[] string = data.toCharArray();
@@ -246,7 +245,25 @@ class parse {
 			System.out.println("------------------");
 			for(int i = 0; i < minimizedDFAStates.size(); i++){
 				System.out.print("	" + i + ":	");
+				for (int l = 0; l < inputs.size()-1; l++){
+					Integer currState = 0;
+					Integer dfaTrans = DFAStates.indexOf(DFATransitions.get(minimizedDFAStates.get(i).get(0)).get(l));
+					for(int k = 0; k < minimizedDFAStates.size(); k++){
+							if(minimizedDFAStates.get(k).contains(dfaTrans)){
+								currState = k;
+							}
+					}
+					System.out.print(currState + "        ");
+				}
+				System.out.println();
 			}
+			System.out.println("------------------");
+			System.out.println("0: Initial State");
+			for(ArrayList<Integer> f: minimizedFinalStates){
+				System.out.print(minimizedDFAStates.indexOf(f) + " ");
+			}
+			System.out.println(": Accepting State(s)");
+			System.out.println("The following are accepted:");
 			for(String a: acceptedMin){
 				System.out.println(a);
 			}
