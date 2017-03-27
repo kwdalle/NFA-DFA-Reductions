@@ -38,28 +38,6 @@ class parse {
 			line = file.nextLine();
 			finalStates = line.replace("{","").replace("}","").split(",");
 			//System.out.println(Arrays.toString(finalStates));
-			
-			//Prints out the NFA information in the format specified
-			System.out.print("Sigma:");
-			for(int i = 0; i < inputs.size(); i++){
-				System.out.print(inputs.get(i) + " ");
-			}
-			System.out.println();
-			System.out.println("------");
-
-			for(int i = 0; i < transitions.size(); i++){
-				System.out.print(i + ":  ");
-				for(int k = 0; k < transitions.get(i).size(); k++){
-					System.out.print("(" + inputs.get(k) + "," + transitions.get(i).get(k) + ") ");
-				}
-				System.out.println();
-			}
-			System.out.println("------");
-			System.out.println(startState + ":	Initial State");
-			for(int i = 0; i < finalStates.length; i++){
-				System.out.print(finalStates[i] + " ");
-			}
-			System.out.println(":	Accepting State(s)\n");
 
 			file.close();
 			//Conversion to DFA
@@ -149,62 +127,6 @@ class parse {
 					}
 				}
 			}
-			System.out.println("To DFA:");
-			System.out.print(" Sigma:	");
-			for(String input: inputs){
-				System.out.print("	" + input);
-			}
-			System.out.println();
-			System.out.println("------------------");
-			for(int i = 0; i < DFAStates.size(); i++){
-				System.out.print("	" + i + ":");
-				for(int k = 0; k < inputs.size()-1; k++){
-					System.out.print("	" + DFAStates.indexOf(DFATransitions.get(i).get(k)));
-				}
-				System.out.println();
-			}
-			System.out.println("------------------");
-			System.out.println("0:	Initial State");
-			for(ArrayList<Integer> f: DFAFinalStates){
-				System.out.print(DFAStates.indexOf(f) + " ");
-			}
-			System.out.println(":	Accepting State(s)");
-
-
-			//Going through input strings given
-			Scanner input = new Scanner(new File(args[1]));
-
-			ArrayList<String> accepted = new ArrayList<String>();
-		
-			while(input.hasNextLine()){
-				String data = input.nextLine();
-				char[] string = data.toCharArray();
-				int currState = 0;
-				for(char a: string){
-					if(inputs.contains(String.valueOf(a))){
-						currState = DFAStates.indexOf(DFATransitions.get(currState).get(inputs.indexOf(String.valueOf(a))));
-					} else {
-						currState = -1;
-						break;
-					}
-				}
-				boolean accept = false;
-				for(ArrayList<Integer> f: DFAFinalStates){
-					if(DFAStates.indexOf(f) == currState){
-						accept = true;
-					}
-				}
-				if(accept){
-					accepted.add(data);
-				}
-			}
-
-			System.out.println("The following Strings are accepted:");
-			for(String data: accepted){
-				System.out.println(data);
-			}
-
-			input.close();
 			
 			//Start of minimization
 			int[][] distinguishableTable = new int[DFAStates.size()][DFAStates.size()];
@@ -231,6 +153,7 @@ class parse {
 	
 			//checks if any of the state pair that a indistinguishable state pair produces is distinguishable then the original is also distinguishable
 			while(changed){
+				changed = false;
 				for(int s = 0; s < inputs.size() -1; s++){
 					for(int i = 0; i < distinguishableTable.length; i++){
 						for(int k = 0; k < distinguishableTable.length; k++){
@@ -241,19 +164,93 @@ class parse {
 								if(distinguishableTable[row][collumn] == 1){
 									distinguishableTable[i][k] = 1;
 									changed = true;
-								} else {changed = false;}
+								}
 							}
 						}
 					}
 				}
 			}
 
+			//Combines all the indistinguishable states
 			for(int i = 0; i < distinguishableTable.length; i++){
+				ArrayList<Integer> combined = new ArrayList<Integer>();
+				combined.add(i);
 				for(int k = 0; k <distinguishableTable[i].length; k++){
-					System.out.print(distinguishableTable[i][k] + "	");
+					//System.out.print(distinguishableTable[i][k] + "	");
+					if((i != k) && (distinguishableTable[i][k] == 0)){
+						combined.add(k);
+					}
 				}
-				System.out.println();
+				Collections.sort(combined);
+				if(!minimizedDFAStates.contains(combined)){
+					minimizedDFAStates.add(combined);
+				}
 			}
+			
+			//Computes the final states
+			ArrayList<ArrayList<Integer>> minimizedFinalStates = new ArrayList<ArrayList<Integer>>();
+			ArrayList<Integer> fStates = new ArrayList<Integer>();
+			for(ArrayList<Integer> dfaFinal: DFAFinalStates){
+				fStates.add(DFAStates.indexOf(dfaFinal));
+			}
+			for(ArrayList<Integer> state: minimizedDFAStates){
+				boolean isFinal = true;
+				for(Integer dfaState: state){
+					if(!fStates.contains(dfaState)){
+						isFinal = false;
+					}
+				}
+				if(isFinal){minimizedFinalStates.add(state);}
+			}
+
+			Scanner inputMin = new Scanner(new File(args[1]));
+
+			ArrayList<String> acceptedMin = new ArrayList<String>();
+		
+			while(inputMin.hasNextLine()){
+				String data = inputMin.nextLine();
+				char[] string = data.toCharArray();
+				int currState = 0;
+				for(char a: string){
+					if(inputs.contains(String.valueOf(a))){
+						Integer dfaTrans = DFAStates.indexOf(DFATransitions.get(minimizedDFAStates.get(currState).get(0)).get(inputs.indexOf(String.valueOf(a))));
+						for(int i = 0; i < minimizedDFAStates.size(); i++){
+							if(minimizedDFAStates.get(i).contains(dfaTrans)){
+								currState = i;
+							}
+						}
+						//currState = DFAStates.indexOf(DFATransitions.get(currState).get(inputs.indexOf(String.valueOf(a))));
+					} else {
+						currState = -1;
+						break;
+					}
+				}
+				boolean accept = false;
+				for(ArrayList<Integer> f: minimizedFinalStates){
+					if(minimizedDFAStates.indexOf(f) == currState){
+						accept = true;
+					}
+				}
+				if(accept){
+					acceptedMin.add(data);
+				}
+			}
+
+			System.out.println(minimizedDFAStates.size());
+			System.out.println("Minimized DFA from " + args[0] + ":");
+			System.out.print("  Sigma:	");
+			for(String sigma: inputs){
+				System.out.print(sigma + "	");
+			}
+			System.out.println();
+			System.out.println("------------------");
+			for(int i = 0; i < minimizedDFAStates.size(); i++){
+				System.out.print("	" + i + ":	");
+			}
+			for(String a: acceptedMin){
+				System.out.println(a);
+			}
+
 		} catch (FileNotFoundException e) {
 			System.out.println(e);
 			System.out.println("Errors have happened (either in filename or format of files)");
